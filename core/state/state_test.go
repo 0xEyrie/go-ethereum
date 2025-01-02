@@ -198,7 +198,7 @@ func TestCreateObjectRevert(t *testing.T) {
 	snap := state.Snapshot()
 
 	state.CreateAccount(addr)
-	so0 := state.getStateObject(addr)
+	so0 := state.GetStateObject(addr)
 	so0.SetBalance(uint256.NewInt(42))
 	so0.SetNonce(43)
 	so0.SetCode(crypto.Keccak256Hash([]byte{'c', 'a', 'f', 'e'}), []byte{'c', 'a', 'f', 'e'})

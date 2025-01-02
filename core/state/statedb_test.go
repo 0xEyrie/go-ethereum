@@ -555,7 +555,7 @@ func (test *snapshotTest) run() bool {
 }
 
 func forEachStorage(s *StateDB, addr common.Address, cb func(key, value common.Hash) bool) error {
-	so := s.getStateObject(addr)
+	so := s.GetStateObject(addr)
 	if so == nil {
 		return nil
 	}
@@ -615,18 +615,18 @@ func (test *snapshotTest) checkEqual(state, checkstate *StateDB) error {
 		checkeq("GetCodeHash", state.GetCodeHash(addr), checkstate.GetCodeHash(addr))
 		checkeq("GetCodeSize", state.GetCodeSize(addr), checkstate.GetCodeSize(addr))
 		// Check newContract-flag
-		if obj := state.getStateObject(addr); obj != nil {
-			checkeq("IsNewContract", obj.newContract, checkstate.getStateObject(addr).newContract)
+		if obj := state.GetStateObject(addr); obj != nil {
+			checkeq("IsNewContract", obj.newContract, checkstate.GetStateObject(addr).newContract)
 		}
 		// Check storage.
-		if obj := state.getStateObject(addr); obj != nil {
+		if obj := state.GetStateObject(addr); obj != nil {
 			forEachStorage(state, addr, func(key, value common.Hash) bool {
 				return checkeq("GetState("+key.Hex()+")", checkstate.GetState(addr, key), value)
 			})
 			forEachStorage(checkstate, addr, func(key, value common.Hash) bool {
 				return checkeq("GetState("+key.Hex()+")", checkstate.GetState(addr, key), value)
 			})
-			other := checkstate.getStateObject(addr)
+			other := checkstate.GetStateObject(addr)
 			// Check dirty storage which is not in trie
 			if !maps.Equal(obj.dirtyStorage, other.dirtyStorage) {
 				print := func(dirty map[common.Hash]common.Hash) string {
@@ -958,7 +958,7 @@ func TestDeleteCreateRevert(t *testing.T) {
 	root, _ = state.Commit(0, true)
 	state, _ = New(root, state.db)
 
-	if state.getStateObject(addr) != nil {
+	if state.GetStateObject(addr) != nil {
 		t.Fatalf("self-destructed contract came alive")
 	}
 }
@@ -1334,7 +1334,7 @@ func TestStorageDirtiness(t *testing.T) {
 		state, _   = New(types.EmptyRootHash, db)
 		addr       = common.HexToAddress("0x1")
 		checkDirty = func(key common.Hash, value common.Hash, dirty bool) {
-			obj := state.getStateObject(addr)
+			obj := state.GetStateObject(addr)
 			v, exist := obj.dirtyStorage[key]
 			if exist != dirty {
 				t.Fatalf("Unexpected dirty marker, want: %t, got: %t", dirty, exist)

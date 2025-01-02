@@ -294,19 +294,19 @@ func (s *StateDB) SubRefund(gas uint64) {
 // Exist reports whether the given account address exists in the state.
 // Notably this also returns true for self-destructed accounts.
 func (s *StateDB) Exist(addr common.Address) bool {
-	return s.getStateObject(addr) != nil
+	return s.GetStateObject(addr) != nil
 }
 
 // Empty returns whether the state object is either non-existent
 // or empty according to the EIP161 specification (balance = nonce = code = 0)
 func (s *StateDB) Empty(addr common.Address) bool {
-	so := s.getStateObject(addr)
+	so := s.GetStateObject(addr)
 	return so == nil || so.empty()
 }
 
 // GetBalance retrieves the balance from the given address or 0 if object not found
 func (s *StateDB) GetBalance(addr common.Address) *uint256.Int {
-	stateObject := s.getStateObject(addr)
+	stateObject := s.GetStateObject(addr)
 	if stateObject != nil {
 		return stateObject.Balance()
 	}
@@ -315,7 +315,7 @@ func (s *StateDB) GetBalance(addr common.Address) *uint256.Int {
 
 // GetNonce retrieves the nonce from the given address or 0 if object not found
 func (s *StateDB) GetNonce(addr common.Address) uint64 {
-	stateObject := s.getStateObject(addr)
+	stateObject := s.GetStateObject(addr)
 	if stateObject != nil {
 		return stateObject.Nonce()
 	}
@@ -326,7 +326,7 @@ func (s *StateDB) GetNonce(addr common.Address) uint64 {
 // GetStorageRoot retrieves the storage root from the given address or empty
 // if object not found.
 func (s *StateDB) GetStorageRoot(addr common.Address) common.Hash {
-	stateObject := s.getStateObject(addr)
+	stateObject := s.GetStateObject(addr)
 	if stateObject != nil {
 		return stateObject.Root()
 	}
@@ -339,7 +339,7 @@ func (s *StateDB) TxIndex() int {
 }
 
 func (s *StateDB) GetCode(addr common.Address) []byte {
-	stateObject := s.getStateObject(addr)
+	stateObject := s.GetStateObject(addr)
 	if stateObject != nil {
 		if s.witness != nil {
 			s.witness.AddCode(stateObject.Code())
@@ -350,7 +350,7 @@ func (s *StateDB) GetCode(addr common.Address) []byte {
 }
 
 func (s *StateDB) GetCodeSize(addr common.Address) int {
-	stateObject := s.getStateObject(addr)
+	stateObject := s.GetStateObject(addr)
 	if stateObject != nil {
 		if s.witness != nil {
 			s.witness.AddCode(stateObject.Code())
@@ -361,7 +361,7 @@ func (s *StateDB) GetCodeSize(addr common.Address) int {
 }
 
 func (s *StateDB) GetCodeHash(addr common.Address) common.Hash {
-	stateObject := s.getStateObject(addr)
+	stateObject := s.GetStateObject(addr)
 	if stateObject != nil {
 		return common.BytesToHash(stateObject.CodeHash())
 	}
@@ -370,7 +370,7 @@ func (s *StateDB) GetCodeHash(addr common.Address) common.Hash {
 
 // GetState retrieves the value associated with the specific key.
 func (s *StateDB) GetState(addr common.Address, hash common.Hash) common.Hash {
-	stateObject := s.getStateObject(addr)
+	stateObject := s.GetStateObject(addr)
 	if stateObject != nil {
 		return stateObject.GetState(hash)
 	}
@@ -380,7 +380,7 @@ func (s *StateDB) GetState(addr common.Address, hash common.Hash) common.Hash {
 // GetCommittedState retrieves the value associated with the specific key
 // without any mutations caused in the current execution.
 func (s *StateDB) GetCommittedState(addr common.Address, hash common.Hash) common.Hash {
-	stateObject := s.getStateObject(addr)
+	stateObject := s.GetStateObject(addr)
 	if stateObject != nil {
 		return stateObject.GetCommittedState(hash)
 	}
@@ -393,7 +393,7 @@ func (s *StateDB) Database() Database {
 }
 
 func (s *StateDB) HasSelfDestructed(addr common.Address) bool {
-	stateObject := s.getStateObject(addr)
+	stateObject := s.GetStateObject(addr)
 	if stateObject != nil {
 		return stateObject.selfDestructed
 	}
@@ -465,7 +465,7 @@ func (s *StateDB) SetStorage(addr common.Address, storage map[common.Hash]common
 	//
 	// TODO (rjl493456442): This function should only be supported by 'unwritable'
 	// state, and all mutations made should be discarded afterward.
-	obj := s.getStateObject(addr)
+	obj := s.GetStateObject(addr)
 	if obj != nil {
 		if _, ok := s.stateObjectsDestruct[addr]; !ok {
 			s.stateObjectsDestruct[addr] = obj
@@ -489,7 +489,7 @@ func (s *StateDB) SetStorage(addr common.Address, storage map[common.Hash]common
 // The account's state object is still available until the state is committed,
 // getStateObject will return a non-nil account after SelfDestruct.
 func (s *StateDB) SelfDestruct(addr common.Address) uint256.Int {
-	stateObject := s.getStateObject(addr)
+	stateObject := s.GetStateObject(addr)
 	var prevBalance uint256.Int
 	if stateObject == nil {
 		return prevBalance
@@ -510,7 +510,7 @@ func (s *StateDB) SelfDestruct(addr common.Address) uint256.Int {
 }
 
 func (s *StateDB) SelfDestruct6780(addr common.Address) (uint256.Int, bool) {
-	stateObject := s.getStateObject(addr)
+	stateObject := s.GetStateObject(addr)
 	if stateObject == nil {
 		return uint256.Int{}, false
 	}
@@ -566,9 +566,9 @@ func (s *StateDB) deleteStateObject(addr common.Address) {
 	}
 }
 
-// getStateObject retrieves a state object given by the address, returning nil if
+// GetStateObject retrieves a state object given by the address, returning nil if
 // the object is not found or was deleted in this execution context.
-func (s *StateDB) getStateObject(addr common.Address) *stateObject {
+func (s *StateDB) GetStateObject(addr common.Address) *stateObject {
 	// Prefer live objects if any is available
 	if obj := s.stateObjects[addr]; obj != nil {
 		return obj
@@ -610,7 +610,7 @@ func (s *StateDB) setStateObject(object *stateObject) {
 
 // getOrNewStateObject retrieves a state object or create a new state object if nil.
 func (s *StateDB) getOrNewStateObject(addr common.Address) *stateObject {
-	obj := s.getStateObject(addr)
+	obj := s.GetStateObject(addr)
 	if obj == nil {
 		obj = s.createObject(addr)
 	}
@@ -640,7 +640,7 @@ func (s *StateDB) CreateAccount(addr common.Address) {
 // This operation sets the 'newContract'-flag, which is required in order to
 // correctly handle EIP-6780 'delete-in-same-transaction' logic.
 func (s *StateDB) CreateContract(addr common.Address) {
-	obj := s.getStateObject(addr)
+	obj := s.GetStateObject(addr)
 	if !obj.newContract {
 		obj.newContract = true
 		s.journal.createContract(addr)

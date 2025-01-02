@@ -305,7 +305,7 @@ func (ch createObjectChange) copy() journalEntry {
 }
 
 func (ch createContractChange) revert(s *StateDB) {
-	s.getStateObject(ch.account).newContract = false
+	s.GetStateObject(ch.account).newContract = false
 }
 
 func (ch createContractChange) dirtied() *common.Address {
@@ -319,7 +319,7 @@ func (ch createContractChange) copy() journalEntry {
 }
 
 func (ch selfDestructChange) revert(s *StateDB) {
-	obj := s.getStateObject(ch.account)
+	obj := s.GetStateObject(ch.account)
 	if obj != nil {
 		obj.selfDestructed = false
 	}
@@ -351,7 +351,7 @@ func (ch touchChange) copy() journalEntry {
 }
 
 func (ch balanceChange) revert(s *StateDB) {
-	s.getStateObject(ch.account).setBalance(ch.prev)
+	s.GetStateObject(ch.account).setBalance(ch.prev)
 }
 
 func (ch balanceChange) dirtied() *common.Address {
@@ -366,7 +366,7 @@ func (ch balanceChange) copy() journalEntry {
 }
 
 func (ch nonceChange) revert(s *StateDB) {
-	s.getStateObject(ch.account).setNonce(ch.prev)
+	s.GetStateObject(ch.account).setNonce(ch.prev)
 }
 
 func (ch nonceChange) dirtied() *common.Address {
@@ -381,7 +381,7 @@ func (ch nonceChange) copy() journalEntry {
 }
 
 func (ch codeChange) revert(s *StateDB) {
-	s.getStateObject(ch.account).setCode(crypto.Keccak256Hash(ch.prevCode), ch.prevCode)
+	s.GetStateObject(ch.account).setCode(crypto.Keccak256Hash(ch.prevCode), ch.prevCode)
 }
 
 func (ch codeChange) dirtied() *common.Address {
@@ -396,7 +396,7 @@ func (ch codeChange) copy() journalEntry {
 }
 
 func (ch storageChange) revert(s *StateDB) {
-	s.getStateObject(ch.account).setState(ch.key, ch.prevvalue, ch.origvalue)
+	s.GetStateObject(ch.account).setState(ch.key, ch.prevvalue, ch.origvalue)
 }
 
 func (ch storageChange) dirtied() *common.Address {
