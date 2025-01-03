@@ -80,7 +80,7 @@ type StateDB struct {
 	db         Database
 	prefetcher *triePrefetcher
 	trie       Trie
-	reader     Reader
+	Reader     Reader
 
 	// originalRoot is the pre-state root, before any changes were made.
 	// It will be updated when the Commit is called.
@@ -171,7 +171,7 @@ func New(root common.Hash, db Database) (*StateDB, error) {
 		db:                   db,
 		trie:                 tr,
 		originalRoot:         root,
-		reader:               reader,
+		Reader:               reader,
 		stateObjects:         make(map[common.Address]*stateObject),
 		stateObjectsDestruct: make(map[common.Address]*stateObject),
 		mutations:            make(map[common.Address]*mutation),
@@ -580,7 +580,7 @@ func (s *StateDB) GetStateObject(addr common.Address) *stateObject {
 	s.AccountLoaded++
 
 	start := time.Now()
-	acct, err := s.reader.Account(addr)
+	acct, err := s.Reader.Account(addr)
 	if err != nil {
 		s.setError(fmt.Errorf("getStateObject (%x) error: %w", addr.Bytes(), err))
 		return nil
@@ -655,7 +655,7 @@ func (s *StateDB) Copy() *StateDB {
 	state := &StateDB{
 		db:                   s.db,
 		trie:                 mustCopyTrie(s.trie),
-		reader:               reader,
+		Reader:               reader,
 		originalRoot:         s.originalRoot,
 		stateObjects:         make(map[common.Address]*stateObject, len(s.stateObjects)),
 		stateObjectsDestruct: make(map[common.Address]*stateObject, len(s.stateObjectsDestruct)),
@@ -1297,7 +1297,7 @@ func (s *StateDB) commitAndFlush(block uint64, deleteEmptyObjects bool) (*stateU
 			s.TrieDBCommits += time.Since(start)
 		}
 	}
-	s.reader, _ = s.db.Reader(s.originalRoot)
+	s.Reader, _ = s.db.Reader(s.originalRoot)
 	return ret, err
 }
 

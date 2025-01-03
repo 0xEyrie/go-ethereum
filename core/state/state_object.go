@@ -190,7 +190,7 @@ func (s *stateObject) GetCommittedState(key common.Hash) common.Hash {
 	s.db.StorageLoaded++
 
 	start := time.Now()
-	value, err := s.db.reader.Storage(s.address, key)
+	value, err := s.db.Reader.Storage(s.address, key)
 	if err != nil {
 		s.db.setError(err)
 		return common.Hash{}
@@ -511,7 +511,7 @@ func (s *stateObject) Code() []byte {
 	if bytes.Equal(s.CodeHash(), types.EmptyCodeHash.Bytes()) {
 		return nil
 	}
-	code, err := s.db.reader.Code(s.address, common.BytesToHash(s.CodeHash()))
+	code, err := s.db.Reader.Code(s.address, common.BytesToHash(s.CodeHash()))
 	if err != nil {
 		s.db.setError(fmt.Errorf("can't load code hash %x: %v", s.CodeHash(), err))
 	}
@@ -532,7 +532,7 @@ func (s *stateObject) CodeSize() int {
 	if bytes.Equal(s.CodeHash(), types.EmptyCodeHash.Bytes()) {
 		return 0
 	}
-	size, err := s.db.reader.CodeSize(s.address, common.BytesToHash(s.CodeHash()))
+	size, err := s.db.Reader.CodeSize(s.address, common.BytesToHash(s.CodeHash()))
 	if err != nil {
 		s.db.setError(fmt.Errorf("can't load code size %x: %v", s.CodeHash(), err))
 	}
